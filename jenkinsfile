@@ -127,12 +127,12 @@ pipeline {
             }
         }
 
-        stage('Build') {
-            steps {
-                // Use 'bat' instead of 'sh' for Windows batch commands
-                bat 'mvn clean package'
-            }
-        }
+        // stage('Build') {
+        //     steps {
+        //         // Use 'bat' instead of 'sh' for Windows batch commands
+        //         bat 'mvn clean package'
+        //     }
+        // }
 
         stage('Deploy') {
             steps {
