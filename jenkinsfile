@@ -1,17 +1,22 @@
 pipeline {
     agent any
 
-    environment {
-        AZURE_CREDENTIALS = credentials('ARM_CLIENT_ID') // Reference the Azure service principal credentials
-    }
-
     stages {
         stage('Azure Resource Group Creation') {
+            environment {
+                AZURE_CLIENT_ID     = credentials('ARM_CLIENT_ID')
+                AZURE_TENANT_ID     = credentials('ARM_TENANT_ID')
+                AZURE_CLIENT_SECRET = credentials('ARM_CLIENT_SECRET')
+                AZURE_SUBSCRIPTION_ID = credentials('ARM_SUBSCRIPTION_ID')
+            }
             steps {
                 script {
                     // Run Azure CLI command to create a resource group
-                    withCredentials([azureServicePrincipal(credentialsId: AZURE_CREDENTIALS, 
-                                                          subscriptionId: 'ARM_SUBSCRIPTION_ID')]) {
+                    withCredentials([azureServicePrincipal(credentialsId: AZURE_CLIENT_ID, 
+                                                          tenantId: AZURE_TENANT_ID,
+                                                          clientId: AZURE_CLIENT_ID,
+                                                          clientSecret: AZURE_CLIENT_SECRET,
+                                                          subscriptionId: AZURE_SUBSCRIPTION_ID)]) {
                         azureCLI(
                             script: 'group create --name MyResourceGroup --location eastus2',
                             installation: 'AzureCLI'
