@@ -92,8 +92,10 @@
 
         stage('Deploy') {
             steps {
+                script {
                 // Define the Azure resource group and app name
-                def resourceGroup = 'RG-uyi'
+                    def resourceGroup = 'RG-uyi'
+                }
 
                 // Use withCredentials to login to Azure
                 withCredentials([usernamePassword(credentialsId: 'AzureServicePrincipal', passwordVariable: 'AZURE_CLIENT_SECRET', usernameVariable: 'AZURE_CLIENT_ID')]) {
