@@ -66,7 +66,50 @@
 //             }
         
     
-    pipeline {
+//     pipeline {
+//     agent any
+
+//     environment {
+//         // Define Azure credentials using Jenkins Credentials Plugin
+//         AZURE_CLIENT_ID       = credentials('ARM_CLIENT_ID')
+//         AZURE_TENANT_ID       = credentials('ARM_TENANT_ID')
+//         AZURE_CLIENT_SECRET   = credentials('ARM_CLIENT_SECRET')
+//         AZURE_SUBSCRIPTION_ID = credentials('ARM_SUBSCRIPTION_ID')
+//     }
+
+//     stages {
+//         stage('Init') {
+//             steps {
+//                 checkout scm
+//             }
+//         }
+
+//         stage('Build') {
+//             steps {
+//                 sh 'mvn clean package'
+//             }
+//         }
+
+//         stage('Deploy') {
+//             steps {
+//                 script {
+//                 // Define the Azure resource group and app name
+//                     def resourceGroup = 'RG-uyi'
+//                 }
+
+//                 // Use withCredentials to login to Azure
+//                 withCredentials([usernamePassword(credentialsId: 'AzureServicePrincipal', passwordVariable: 'AZURE_CLIENT_SECRET', usernameVariable: 'AZURE_CLIENT_ID')]) {
+//                     sh '''
+//                         az login --service-principal -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET -t $AZURE_TENANT_ID
+//                         az account set -s $AZURE_SUBSCRIPTION_ID
+//                     '''
+//                 }
+//             }
+//         }
+//     }
+// }
+
+pipeline {
     agent any
 
     environment {
@@ -86,22 +129,23 @@
 
         stage('Build') {
             steps {
-                sh 'mvn clean package'
+                // Use 'bat' instead of 'sh' for Windows batch commands
+                bat 'mvn clean package'
             }
         }
 
         stage('Deploy') {
             steps {
                 script {
-                // Define the Azure resource group and app name
+                    // Define the Azure resource group and app name
                     def resourceGroup = 'RG-uyi'
                 }
 
-                // Use withCredentials to login to Azure
+                // Use 'bat' instead of 'sh' for Windows batch commands
                 withCredentials([usernamePassword(credentialsId: 'AzureServicePrincipal', passwordVariable: 'AZURE_CLIENT_SECRET', usernameVariable: 'AZURE_CLIENT_ID')]) {
-                    sh '''
-                        az login --service-principal -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET -t $AZURE_TENANT_ID
-                        az account set -s $AZURE_SUBSCRIPTION_ID
+                    bat '''
+                        az login --service-principal -u %AZURE_CLIENT_ID% -p %AZURE_CLIENT_SECRET% -t %AZURE_TENANT_ID%
+                        az account set -s %AZURE_SUBSCRIPTION_ID%
                     '''
                 }
             }
