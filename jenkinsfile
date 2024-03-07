@@ -1,0 +1,24 @@
+pipeline {
+    agent any
+
+    environment {
+        AZURE_CREDENTIALS = credentials('azureCredentials') // Reference the Azure service principal credentials
+    }
+
+    stages {
+        stage('Azure Resource Group Creation') {
+            steps {
+                script {
+                    // Run Azure CLI command to create a resource group
+                    withCredentials([azureServicePrincipal(credentialsId: AZURE_CREDENTIALS, 
+                                                          subscriptionId: '95f7e254-1fec-4a38-8c25-b5e55c61056a')]) {
+                        azureCLI(
+                            script: 'group create --name MyResourceGroup --location eastus2',
+                            installation: 'AzureCLI'
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
