@@ -1,29 +1,70 @@
+// pipeline {
+//     agent any
+
+//     stages {
+//         stage('Azure Resource Group Creation') {
+//             environment {
+//                 AZURE_CLIENT_ID     = credentials('ARM_CLIENT_ID')
+//                 AZURE_TENANT_ID     = credentials('ARM_TENANT_ID')
+//                 AZURE_CLIENT_SECRET = credentials('ARM_CLIENT_SECRET')
+//                 AZURE_SUBSCRIPTION_ID = credentials('ARM_SUBSCRIPTION_ID')
+//             }
+//             steps {
+//                 script {
+//                     // Run Azure CLI command to create a resource group
+//                     withCredentials([azureServicePrincipal(credentialsId: AZURE_CLIENT_ID, 
+//                                                           tenantId: AZURE_TENANT_ID,
+//                                                           clientId: AZURE_CLIENT_ID,
+//                                                           clientSecret: AZURE_CLIENT_SECRET,
+//                                                           subscriptionId: AZURE_SUBSCRIPTION_ID)]) {
+//                         azureCLI(
+//                             script: 'group create --name MyResourceGroup --location eastus2',
+//                             installation: 'AzureCLI'
+//                         )
+//                     }
+//                 }
+//             }
+//         }
+//     }
+// }
+
+
 pipeline {
     agent any
 
+    environment {
+        // Define Azure credentials using Jenkins Credentials Plugin
+        AZURE_CLIENT_ID     = credentials('ARM_CLIENT_ID')
+        AZURE_TENANT_ID     = credentials('ARM_TENANT_ID')
+        AZURE_CLIENT_SECRET = credentials('ARM_CLIENT_SECRET')
+        AZURE_SUBSCRIPTION_ID = credentials('ARM_SUBSCRIPTION_ID')
+    }
+
     stages {
-        stage('Azure Resource Group Creation') {
-            environment {
-                AZURE_CLIENT_ID     = credentials('ARM_CLIENT_ID')
-                AZURE_TENANT_ID     = credentials('ARM_TENANT_ID')
-                AZURE_CLIENT_SECRET = credentials('ARM_CLIENT_SECRET')
-                AZURE_SUBSCRIPTION_ID = credentials('ARM_SUBSCRIPTION_ID')
-            }
+        stage('Deploy') {
             steps {
                 script {
-                    // Run Azure CLI command to create a resource group
-                    withCredentials([azureServicePrincipal(credentialsId: AZURE_CLIENT_ID, 
-                                                          tenantId: AZURE_TENANT_ID,
-                                                          clientId: AZURE_CLIENT_ID,
-                                                          clientSecret: AZURE_CLIENT_SECRET,
-                                                          subscriptionId: AZURE_SUBSCRIPTION_ID)]) {
-                        azureCLI(
-                            script: 'group create --name MyResourceGroup --location eastus2',
-                            installation: 'AzureCLI'
-                        )
+                    // Define the Azure resource group and app name
+                    def resourceGroup = 'RG-uyi'
+
+                    // Use withCredentials to login to Azure
+                    withCredentials([usernamePassword(credentialsId: 'AzureServicePrincipal', passwordVariable: 'AZURE_CLIENT_SECRET', usernameVariable: 'AZURE_CLIENT_ID')]) {
+                        sh '''
+                            az login --service-principal -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET -t $AZURE_TENANT_ID
+                            az account set -s $AZURE_SUBSCRIPTION_ID
+                            az group create --name $resourceGroup --location "eastus2"
+                        '''
                     }
                 }
             }
         }
     }
 }
+
+
+
+
+
+
+
+
