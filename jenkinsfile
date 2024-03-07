@@ -30,37 +30,43 @@
 
 
 pipeline {
-    agent any
-
-    environment {
+    // agent any
+       node 
+            withEnvironments(
         // Define Azure credentials using Jenkins Credentials Plugin
-        AZURE_CLIENT_ID     = credentials('ARM_CLIENT_ID')
-        AZURE_TENANT_ID     = credentials('ARM_TENANT_ID')
-        AZURE_CLIENT_SECRET = credentials('ARM_CLIENT_SECRET')
-        AZURE_SUBSCRIPTION_ID = credentials('ARM_SUBSCRIPTION_ID')
+            AZURE_CLIENT_ID     = credentials('ARM_CLIENT_ID')
+            AZURE_TENANT_ID     = credentials('ARM_TENANT_ID')
+            AZURE_CLIENT_SECRET = credentials('ARM_CLIENT_SECRET')
+            AZURE_SUBSCRIPTION_ID = credentials('ARM_SUBSCRIPTION_ID'))
+
+            stage('init') {
+                checkout scm
+            }  
+
+            stage('build') {
+                sh 'mvn clean package'
+            } 
     }
 
-    stages {
-        stage('Deploy') {
-            steps {
-                script {
-                    // Define the Azure resource group and app name
-                    def resourceGroup = 'RG-uyi'
+            
+            stage('Deploy') {
+                    
+            // Define the Azure resource group and app name
+                def resourceGroup = 'RG-uyi'
 
-                    // Use withCredentials to login to Azure
-                    withCredentials([usernamePassword(credentialsId: 'AzureServicePrincipal', passwordVariable: 'AZURE_CLIENT_SECRET', usernameVariable: 'AZURE_CLIENT_ID')]) {
-                        bat '''
-                            az login --service-principal -u %AZURE_CLIENT_ID% -p %AZURE_CLIENT_SECRET% -t %AZURE_TENANT_ID%
-                            az account set -s %AZURE_SUBSCRIPTION_ID%
-                            az group create --name %resourceGroup% --location "eastus2"
-                        '''
+            // Use withCredentials to login to Azure
+                withCredentials([usernamePassword(credentialsId: 'AzureServicePrincipal', passwordVariable: 'AZURE_CLIENT_SECRET', usernameVariable: 'AZURE_CLIENT_ID')]) {
+                 sh '''
+                    az login --service-principal -u $AZURE_CLIENT_ID -p $AZURE_CLIENT_SECRET -t $AZURE_TENANT_ID
+                    az account set -s $AZURE_SUBSCRIPTION_ID
+                '''
 
                     }
-                }
+                
             }
-        }
-    }
-}
+        
+    
+
 
 
 
