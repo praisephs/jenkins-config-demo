@@ -16,6 +16,13 @@ pipeline {
             }
         }
 
+        stage('Install Terraform') {
+            steps {
+                // Install Terraform
+                bat 'choco install terraform -y' // Adjust for your package manager (e.g., chocolatey for Windows)
+            }
+        }
+
         stage('Deploy') {
             steps {
                 script {
@@ -30,9 +37,13 @@ pipeline {
                         az login --service-principal -u %AZURE_CLIENT_ID% -p %AZURE_CLIENT_SECRET% -t %AZURE_TENANT_ID%
                         az account set -s %AZURE_SUBSCRIPTION_ID%
 
-                        az group create --name ${RG-uyi} --location 'eastus2'
-
                     '''
+
+                    // Initialize Terraform
+                    bat 'terraform init'
+
+                        // Apply Terraform configuration
+                    bat 'terraform apply -auto-approve'
                 }
             }
         }
