@@ -16,18 +16,12 @@ pipeline {
             }
         }
 
-        // stage('Build') {
-        //     steps {
-        //         // Use 'bat' instead of 'sh' for Windows batch commands
-        //         bat 'mvn clean package'
-        //     }
-        // }
-
         stage('Deploy') {
             steps {
                 script {
                     // Define the Azure resource group and app name
                     def resourceGroup = 'RG-uyi'
+                    
                 }
 
                 // Use 'bat' instead of 'sh' for Windows batch commands
@@ -35,6 +29,9 @@ pipeline {
                     bat '''
                         az login --service-principal -u %AZURE_CLIENT_ID% -p %AZURE_CLIENT_SECRET% -t %AZURE_TENANT_ID%
                         az account set -s %AZURE_SUBSCRIPTION_ID%
+
+                        az group create --name ${RG-uyi} --location 'eastus2'
+
                     '''
                 }
             }
