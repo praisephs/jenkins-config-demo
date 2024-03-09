@@ -19,18 +19,13 @@ pipeline {
         stage('Install Terraform') {
             steps {
                 // Install Terraform
-                bat 'choco install terraform -y' // Adjust for your package manager (e.g., chocolatey for Windows)
+                bat 'choco install terraform -y' 
             }
         }
 
         stage('Deploy') {
             steps {
-                script {
-                    // Define the Azure resource group and app name
-                    def resourceGroup = 'RG-uyi'
-                    
-                }
-
+                
                 // Use 'bat' instead of 'sh' for Windows batch commands
                 withCredentials([usernamePassword(credentialsId: 'AzureServicePrincipal_5', passwordVariable: 'AZURE_CLIENT_SECRET', usernameVariable: 'AZURE_CLIENT_ID')]) {
                     bat '''
