@@ -50,7 +50,7 @@ resource "azurerm_linux_virtual_machine" "this" {
   name                = "vm-uyi"
   resource_group_name = azurerm_resource_group.this.name
   location            = azurerm_resource_group.this.location
-  size                = "Standard_F2"
+  size                = "Standard_B1s"
   admin_username      = "adminuser"
   admin_password      = "AdminUser1234"
   disable_password_authentication = false
