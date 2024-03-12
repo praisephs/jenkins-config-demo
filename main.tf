@@ -72,7 +72,7 @@ resource "azurerm_linux_virtual_machine" "this" {
 }
 
 resource "azurerm_storage_account" "this" {
-  name                     = "storageaccountname-uyi"
+  name                     = "storageuyi"
   resource_group_name      = azurerm_resource_group.this.name
   location                 = azurerm_resource_group.this.location
   account_tier             = "Standard"
