@@ -70,3 +70,15 @@ resource "azurerm_linux_virtual_machine" "this" {
     version   = "latest"
   }
 }
+
+resource "azurerm_storage_account" "this" {
+  name                     = "storageaccountname-uyi"
+  resource_group_name      = azurerm_resource_group.this.name
+  location                 = azurerm_resource_group.this.location
+  account_tier             = "Standard"
+  account_replication_type = "GRS"
+
+  tags = {
+    environment = "staging"
+  }
+}
