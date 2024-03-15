@@ -37,8 +37,23 @@ pipeline {
                     // Initialize Terraform
                     bat 'terraform init'
 
-                        // Apply Terraform configuration
-                    bat 'terraform apply -auto-approve'
+                    bat 'terraform plan'
+
+            steps {
+
+	      		// Create an Approval Button with a timeout of 15minutes.
+	                bat ''' 
+                        timeout(time: 15, unit: "MINUTES") {
+	                    input message: 'Do you want to approve the deployment?', ok: 'Yes'}
+
+                    ''' 
+                    echo "Initiating deployment"  
+
+	            }
+
+                // Apply Terraform configuration
+                bat 'terraform apply -auto-approve'
+
                 }
             }
         }
