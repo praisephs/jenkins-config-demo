@@ -1,3 +1,67 @@
+// pipeline {
+//     agent any
+
+//     environment {
+//         // Define Azure credentials using Jenkins Credentials Plugin
+//         AZURE_CLIENT_ID       = credentials('ARM_CLIENT_ID')
+//         AZURE_TENANT_ID       = credentials('ARM_TENANT_ID')
+//         AZURE_CLIENT_SECRET   = credentials('ARM_CLIENT_SECRET')
+//         AZURE_SUBSCRIPTION_ID = credentials('ARM_SUBSCRIPTION_ID')
+//     }
+
+//     stages {
+//         stage('Init') {
+//             steps {
+//                 checkout scm
+//             }
+//         }
+
+//         stage('Install Terraform') {
+//             steps {
+//                 // Install Terraform
+//                 bat 'choco install terraform -y' 
+//             }
+//         }
+
+//         stage('Deploy') {
+//             steps {
+                
+//                 // Use 'bat' instead of 'sh' for Windows batch commands
+//                 withCredentials([usernamePassword(credentialsId: 'AzureServicePrincipal', passwordVariable: 'AZURE_CLIENT_SECRET', usernameVariable: 'AZURE_CLIENT_ID')]) {
+//                     bat '''
+//                         az login --service-principal -u %AZURE_CLIENT_ID% -p %AZURE_CLIENT_SECRET% -t %AZURE_TENANT_ID%
+//                         az account set -s %AZURE_SUBSCRIPTION_ID%
+
+//                     '''
+
+//                     // Initialize Terraform
+//                     bat 'terraform init'
+
+//                     bat 'terraform plan'
+                
+
+//         stage('Add Approval Button') {    
+//             steps {
+
+// 	      		// Create an Approval Button with a timeout of 15minutes.
+// 	                bat ''' 
+//                         timeout(time: 15, unit: "MINUTES") {
+// 	                    input message: 'Do you want to approve the deployment?', ok: 'Yes'}
+
+//                     ''' 
+//                     echo "Initiating deployment"  
+
+// 	            }
+
+//                 // Apply Terraform configuration
+//                 bat 'terraform apply -auto-approve'
+
+                
+//             }
+//         }
+//     }
+// }
+
 pipeline {
     agent any
 
@@ -25,40 +89,40 @@ pipeline {
 
         stage('Deploy') {
             steps {
-                
                 // Use 'bat' instead of 'sh' for Windows batch commands
                 withCredentials([usernamePassword(credentialsId: 'AzureServicePrincipal', passwordVariable: 'AZURE_CLIENT_SECRET', usernameVariable: 'AZURE_CLIENT_ID')]) {
                     bat '''
                         az login --service-principal -u %AZURE_CLIENT_ID% -p %AZURE_CLIENT_SECRET% -t %AZURE_TENANT_ID%
                         az account set -s %AZURE_SUBSCRIPTION_ID%
-
                     '''
 
                     // Initialize Terraform
                     bat 'terraform init'
 
                     bat 'terraform plan'
+                }
+            }
+        }
 
+        stage('Add Approval Button') {    
             steps {
+                // Create an Approval Button with a timeout of 15 minutes.
+                timeout(time: 15, unit: "MINUTES") {
+                    input message: 'Do you want to approve the deployment?', ok: 'Yes'
+                }
+                echo "Initiating deployment"  
+            }
+        }
 
-	      		// Create an Approval Button with a timeout of 15minutes.
-	                bat ''' 
-                        timeout(time: 15, unit: "MINUTES") {
-	                    input message: 'Do you want to approve the deployment?', ok: 'Yes'}
-
-                    ''' 
-                    echo "Initiating deployment"  
-
-	            }
-
+        stage('Apply Terraform Configuration') {
+            steps {
                 // Apply Terraform configuration
                 bat 'terraform apply -auto-approve'
-
-                }
             }
         }
     }
 }
+
 
 
 
