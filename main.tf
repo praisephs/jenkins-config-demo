@@ -15,7 +15,7 @@ provider "azurerm" {
 
 
 resource "azurerm_resource_group" "this" {
-  name     = "uyi22"
+  name     = "testing-RG"
   location = "eastus2"
 }
 
